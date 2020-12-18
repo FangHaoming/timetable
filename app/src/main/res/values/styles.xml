@@ -1,0 +1,54 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+    </style>
+
+    <style name="login" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/login</item>
+        <item name="colorPrimaryDark">@color/login</item>
+        <item name="colorAccent">@color/login</item>
+    </style>
+    <style name="timeTable" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/timeTable</item>
+        <item name="colorPrimaryDark">@color/timeTable</item>
+        <item name="colorAccent">@color/timeTable</item>
+        <item name="actionBarSize">50dp</item>
+    </style>
+    <style name="grid">
+        <item name="android:layout_width">30sp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:background">@drawable/border</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="grid2">
+        <item name="android:layout_width">20sp</item>
+        <item name="android:layout_height">50sp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:background">@drawable/border</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="grid3">
+        <item name="android:layout_width">20sp</item>
+        <item name="android:layout_height">50sp</item>
+        <item name="android:layout_columnWeight">1</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">#fff</item>
+    </style>
+
+    <style name="dialog">
+        <item name="android:background">@drawable/dialog</item>
+    </style>
+</resources>
