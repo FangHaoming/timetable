@@ -384,6 +384,7 @@ public class MainActivity extends AppCompatActivity {
                     if (k > 25) {
                         k = k % 25;
                     }
+
                     addLesson(temp, Integer.parseInt(week.getText().toString()));
                     Toast.makeText(MainActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
                 }
