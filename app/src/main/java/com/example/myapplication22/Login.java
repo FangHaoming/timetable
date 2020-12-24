@@ -72,7 +72,7 @@ public class Login extends AppCompatActivity {
         //send.putString("txtUserID",acc);
         //send.putString("txtUserPwd",pwd);
         if(acc.length()!=0&&pwd.length()!=0){
-            sendByPost(acc,pwd,"2020-2021学年","1");
+            sendByPost(acc,pwd,"2022-2023学年","1");
         }
         else if(acc.length()==0){
             Toast.makeText(this, "请输入账号", Toast.LENGTH_SHORT).show();
@@ -86,7 +86,8 @@ public class Login extends AppCompatActivity {
 
 
     private void sendByPost(String txtUserID, String txtUserPwd,String xn,String xq) {
-        //String requestBody = "I am huangzhihao";
+        //172.16.226.68
+        //10.22.32.85
         String Url = "http://172.16.226.68:8080/servlet.loginServlet";
         String path = Url ;
         OkHttpClient client = new OkHttpClient();

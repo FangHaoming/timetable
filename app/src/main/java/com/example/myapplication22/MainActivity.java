@@ -11,14 +11,18 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.alibaba.fastjson.JSON;
 
@@ -44,7 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private Map<String,Object>[] lesson1;
     private SharedPreferences receive;
     private SharedPreferences.Editor editor;
-    private int k;
+    private int k; //色号
+    private int id=0; //id号0-50一一对应课程号
     private int[] a;
 
     //初始化视图
@@ -55,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         receive=getSharedPreferences("data", Context.MODE_PRIVATE);
         editor=receive.edit();
 
-        //editor.putString("s","s");
         ActionBar actionBar = getSupportActionBar();
         /*
         if(actionBar != null){
@@ -135,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
                 k++;
-
+                if(k>25)
+                    k=k%25;
             }
         }
 
@@ -144,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
     //获取课程信息方法
     private void sendByPost(String txtUserID, String txtUserPwd, String xn, String xq) {
         //172.16.226.68
+        //10.22.32.85
         String Url = "http://172.16.226.68:8080/servlet.timeTableServlet";
         String path = Url ;
         OkHttpClient client = new OkHttpClient();
@@ -269,8 +275,13 @@ public class MainActivity extends AppCompatActivity {
             String[] color={"#E6862617","#E6C5708B","#E6D4C4B7","#E6EBB10D","#E6ED5126","#E6BACCD9","#E696C24E","#E6E3BD8D","#E6F4D3DC","#E6E69189","#E6F051E4","#E61CA3FF","#E60EE8BD","#E6B7AE8F","#E6F27635","#E6F8BC31","#E6EB8A3A","#E6815C94","#E68A6913","#E615559A","#E6D2D97A","#E6EA8958","#E6EEB8C3","#E6F7DE98","#E6EF475D","#E6C27C88","#E6C6DFC8"};
             lessonTag.setBackgroundColor(Color.parseColor(color[a[k]]));
             lessonTag.setText(lessons.name+"\n"+"@"+lessons.classroom);
-
-            //lessonTag.setOnClickListener(); //给每个课程添加点击事件，打开编辑ddl
+            lessonTag.setId(id);
+            lessonTag.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //showAddDialog();
+                }
+            }); //给每个课程添加点击事件，打开编辑ddl
             GridLayout.Spec rowSpec = GridLayout.spec(lessons.time.begin[j],lessons.time.last);
             GridLayout.Spec columnSpec=GridLayout.spec(j+1);
             GridLayout.LayoutParams params=new GridLayout.LayoutParams(rowSpec,columnSpec);//设置添加的课程行与列
@@ -280,8 +291,7 @@ public class MainActivity extends AppCompatActivity {
             params.setMargins(1,1,1,1);
             gridLayout.addView(lessonTag,params);
         }
-
-
+        id++;
     }
 
     //注销登录，返回登录界面
@@ -294,39 +304,89 @@ public class MainActivity extends AppCompatActivity {
     //创建菜单
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_top_right,menu);
+        getMenuInflater().inflate(R.menu.region_left_menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
     //菜单事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
-            case R.id.add:
+            case R.id.set_current_menu:
+                Toast.makeText(MainActivity.this,"设置当前周",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.change_date_menu:
+                Toast.makeText(MainActivity.this,"切换学期",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.log_out:
+                Intent intent=new Intent(MainActivity.this,Login.class);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.add_class_menu:
                 showAddDialog();
+                //Toast.makeText(MainActivity.this,"添加课程 ",Toast.LENGTH_SHORT).show();
                 break;
-            case android.R.id.home:
-                this.finish(); // back button
-            case R.id.delete:
-                logout(); //退出登录，仅作调试用
+            case R.id.delete_class_menu:
+                Toast.makeText(MainActivity.this,"删除课程",Toast.LENGTH_SHORT).show();
                 break;
+            default:
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
+
     //显示添加课程对话框
     public void showAddDialog(){
         LayoutInflater factory= LayoutInflater.from(this);
         final View view=factory.inflate(R.layout.add_dialog,null);
-        final EditText Ename=(EditText)findViewById(R.id.Ename);
-        final EditText Eroom=(EditText)findViewById(R.id.Eroom);
+        final EditText Cname=view.findViewById(R.id.Cname);
+        final EditText Croom=view.findViewById(R.id.Croom);
+        final EditText Bweek=view.findViewById(R.id.Bweek);
+        final EditText Eweek=view.findViewById(R.id.Eweek);
+        final EditText Btime=view.findViewById(R.id.Btime);
+        final EditText Etime=view.findViewById(R.id.Etime);
+        final EditText week=view.findViewById(R.id.week);
+        final CheckBox checkBox1=view.findViewById(R.id.checkBox1);
+        final CheckBox checkBox2=view.findViewById(R.id.checkBox2);
         AlertDialog.Builder add=new AlertDialog.Builder(MainActivity.this);
         add.setTitle("添加课程");
         add.setView(view);
         add.setPositiveButton("确定",new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Toast.makeText(MainActivity.this,"确定", Toast.LENGTH_SHORT).show();
-                //getsource();
-            }
+                Lesson temp=new Lesson();
+                if(!Cname.getText().toString().equals("")&&!week.getText().toString().equals("")&&!Btime.getText().toString().equals("")&&!Etime.getText().toString().equals("")){
+                    temp.name=Cname.getText().toString();
+                    if (Btime.getText().toString().toUpperCase().equals("A")) {
+                        temp.time.begin[Integer.parseInt(week.getText().toString())] = 11;
+                    }
+                    else if(Btime.getText().toString().toUpperCase().equals("B"))
+                        temp.time.begin[Integer.parseInt(week.getText().toString())] = 12;
+                    }
+                    else if (Btime.getText().toString().toUpperCase().equals("C")) {
+                        temp.time.begin[Integer.parseInt(week.getText().toString())] = 13;
+                    }
+                    else{
+                        temp.time.begin[1] = Integer.parseInt(Btime.getText().toString());
+                        //temp.time.begin[Integer.parseInt(week.getText().toString())] = Integer.parseInt(Btime.getText().toString());
+                    }
+                    temp.time.last=1+Etime.getText().toString().toUpperCase().toCharArray()[0]-Btime.getText().toString().toUpperCase().toCharArray()[0];
+                    if(!Croom.getText().equals(""))
+                        temp.classroom=Croom.getText().toString();
+                    else {
+                        temp.classroom = "";
+                    }
+                    k++;
+                    if(k>25) {
+                        k = k % 25;
+                    }
+                    addLesson(temp,Integer.parseInt(week.getText().toString()));
+                    Toast.makeText(MainActivity.this,"添加成功", Toast.LENGTH_SHORT).show();
+                }
+
+                    //Toast.makeText(MainActivity.this, "添加失败", Toast.LENGTH_SHORT).show();
+
         });
         add.setNegativeButton("取消",new DialogInterface.OnClickListener(){
             @Override
@@ -336,9 +396,5 @@ public class MainActivity extends AppCompatActivity {
         });
         add.show();
     }
-
-
-
-
 
 }
