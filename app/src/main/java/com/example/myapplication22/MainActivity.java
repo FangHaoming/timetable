@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private int[] a;
     private int CurID = 0;//点击课程，当前ID
     private JSONObject json = new JSONObject();
-
+//
     //初始化视图
     @Override
     protected void onCreate(Bundle savedInstanceState) {
