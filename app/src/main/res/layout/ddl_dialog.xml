@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:divider="@drawable/divider"
+    android:dividerPadding="1.5dp"
+    android:padding="10dp"
+    android:background="@drawable/dialog"
+    android:showDividers="middle">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="班号"></TextView>
+
+        <TextView
+            android:id="@+id/Cno"
+            android:layout_width="200dp"
+            android:layout_height="28dp"></TextView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="学分"></TextView>
+
+        <TextView
+            android:id="@+id/Ccredit"
+            android:layout_width="200dp"
+            android:layout_height="28dp"></TextView>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="课程名"></TextView>
+
+        <TextView
+            android:id="@+id/Cname"
+            android:layout_width="200dp"
+            android:layout_height="28dp"></TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="教室"></TextView>
+
+        <TextView
+            android:id="@+id/Croom"
+            android:layout_width="200dp"
+            android:layout_height="28dp"></TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="教师"></TextView>
+
+        <TextView
+            android:id="@+id/Cteacher"
+            android:layout_width="200dp"
+            android:layout_height="28dp"></TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:singleLine="true"
+            android:ems="10"
+            android:text="笔记"></TextView>
+
+        <EditText
+            android:id="@+id/Cnote"
+            android:layout_width="200dp"
+            android:background="@drawable/border_black"
+            android:layout_height="200dp"></EditText>
+    </LinearLayout>
+
+
+
+</LinearLayout>

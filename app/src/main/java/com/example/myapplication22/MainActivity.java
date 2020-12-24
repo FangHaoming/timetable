@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private int k; //色号
     private int id=0; //id号0-50一一对应课程号
     private int[] a;
+    private int CurID=0;//点击课程，当前ID
 
     //初始化视图
     @Override
@@ -134,8 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 for(int j=0;j<7;j++) {
                     String time = (String) lesson1[i].get(String.valueOf(j));
                     if (!time.contains("null")&&lessons1[i].time.during[0]>=3) { //这里只显示第三周开始的课程
-                        addLesson(lessons1[i], j);
-
+                        addLesson(Lessons.lessons.get(i), j);
                     }
                 }
                 k++;
@@ -255,9 +255,10 @@ public class MainActivity extends AppCompatActivity {
                         lessons[i].time.begin[j] = Integer.parseInt(timeList[1]);
                         lessons[i].time.last = timeList.length-1;
                     }
-                    //System.out.println(lessons[i].time.begin[j]);
+                    //System.out.println(Lessons[i].time.begin[j]);
                 }
             }
+            Lessons.lessons.add(lessons[i]);
         }
         lessons1=lessons;
         lesson1=lesson;
@@ -269,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i=0;i<lessons.time.count;i++){
             //设置课程样式
-            TextView lessonTag=new TextView(MainActivity.this);
+            final TextView lessonTag=new TextView(MainActivity.this);
             lessonTag.setTextAppearance(R.style.grid3);
             lessonTag.setGravity(Gravity.CENTER); //居中
             String[] color={"#E6862617","#E6C5708B","#E6D4C4B7","#E6EBB10D","#E6ED5126","#E6BACCD9","#E696C24E","#E6E3BD8D","#E6F4D3DC","#E6E69189","#E6F051E4","#E61CA3FF","#E60EE8BD","#E6B7AE8F","#E6F27635","#E6F8BC31","#E6EB8A3A","#E6815C94","#E68A6913","#E615559A","#E6D2D97A","#E6EA8958","#E6EEB8C3","#E6F7DE98","#E6EF475D","#E6C27C88","#E6C6DFC8"};
@@ -279,7 +280,8 @@ public class MainActivity extends AppCompatActivity {
             lessonTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //showAddDialog();
+                    CurID=lessonTag.getId();
+                    showDdlDialog();
                 }
             }); //给每个课程添加点击事件，打开编辑ddl
             GridLayout.Spec rowSpec = GridLayout.spec(lessons.time.begin[j],lessons.time.last);
@@ -356,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Lesson temp=new Lesson();
+                temp.time.count=1;
                 if(!Cname.getText().toString().equals("")&&!week.getText().toString().equals("")&&!Btime.getText().toString().equals("")&&!Etime.getText().toString().equals("")){
                     temp.name=Cname.getText().toString();
                     if (Btime.getText().toString().toUpperCase().equals("A")) {
@@ -368,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
                         temp.time.begin[Integer.parseInt(week.getText().toString())] = 13;
                     }
                     else{
-                        temp.time.begin[1] = Integer.parseInt(Btime.getText().toString());
+                        temp.time.begin[Integer.parseInt(week.getText().toString())] = Integer.parseInt(Btime.getText().toString());
                         //temp.time.begin[Integer.parseInt(week.getText().toString())] = Integer.parseInt(Btime.getText().toString());
                     }
                     temp.time.last=1+Etime.getText().toString().toUpperCase().toCharArray()[0]-Btime.getText().toString().toUpperCase().toCharArray()[0];
@@ -395,6 +398,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         add.show();
+    }
+
+    //显示ddl对话框
+    public void showDdlDialog(){
+        LayoutInflater factory= LayoutInflater.from(this);
+        AlertDialog.Builder ddl=new AlertDialog.Builder(MainActivity.this);
+        View view=factory.inflate(R.layout.ddl_dialog,null);
+        TextView Cname=view.findViewById(R.id.Cname);
+        TextView Croom=view.findViewById(R.id.Croom);
+        TextView Ccredit=view.findViewById(R.id.Ccredit);
+        TextView Cno=view.findViewById(R.id.Cno);
+        TextView Cteacher=view.findViewById(R.id.Cteacher);
+        final EditText Cnote=view.findViewById(R.id.Cnote);
+        Cname.setText(Lessons.lessons.get(CurID).name);
+        Croom.setText(Lessons.lessons.get(CurID).classroom);
+        Ccredit.setText(Lessons.lessons.get(CurID).credit);
+        Cno.setText(Lessons.lessons.get(CurID).no);
+        Cteacher.setText(Lessons.lessons.get(CurID).teacher);
+        Cnote.setText(Lessons.lessons.get(CurID).note);
+        ddl.setView(view);
+        ddl.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(!Cnote.getText().equals(""))
+                    Lessons.lessons.get(CurID).note=Cnote.getText().toString();
+            }
+        });
+        ddl.show();
     }
 
 }

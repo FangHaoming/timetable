@@ -7,6 +7,7 @@ public class Lesson {
     public String classroom;
     public Time time=new Time();
     public String credit;
+    public String note;
 }
 
 class Time{
