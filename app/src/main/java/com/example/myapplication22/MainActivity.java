@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import com.alibaba.fastjson.JSONObject;
 
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,26 +92,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     //创建课程表
     public void addWholeLesson() {
         Calendar now = Calendar.getInstance();
-        String xn;
+        int xn;
         String xq;
         if (now.get(Calendar.MONTH) >= 9) {
-            xn = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.YEAR) + 1) + "学年";
+            xn = now.get(Calendar.YEAR);
             xq = "1";
         } else {
-            xn = (now.get(Calendar.YEAR) - 1) + "-" + now.get(Calendar.YEAR) + "学年";
+            xn = now.get(Calendar.YEAR) - 1;
             xq = "2";
         }
-        if (receive.getBoolean("isLoad", false) == false) {
-            sendByPost(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), xn, xq);
+        xn=receive.getInt("xn",xn);
+        xq=receive.getString("xq",xq);
+        if (receive.getBoolean("isLoad", false) == false||receive.getInt("change",0)==1) {
+            sendByPost(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), xn+"-"+(xn+1)+"学年", xq);
+            editor.putInt("change",0);
+            editor.apply();
             while (lessonCount == 0) {
             }
         }
-        if (receive.getString("info", "") != null) {
+        if (receive.getString("info", null) != null) {
             readResponse();
-            //readJson();
             k = 0;
             a = new int[20];
             if (receive.getString("color", "") == "") {
@@ -141,11 +148,11 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < a.length; i++) {
                 a[i] = Integer.parseInt(String.valueOf(objectMap.get("c" + i)));
             }
-            for (int i = 0; i < lesson1.length; i++) {
+            for (int i = 0; i < Lessons.lessons.size(); i++) {
                 for (int j = 0; j < 7; j++) {
                     String time = (String) lesson1[i].get(String.valueOf(j));
-                    if (!time.contains("null") && lessons1[i].time.during[0] >= 3) { //这里只显示第三周开始的课程
-                        addLesson(lessons.get(i), j);
+                    if (!time.contains("null") && lessons1[i].time.during[0] >= 0) { //这里只显示第三周开始的课程
+                        addLesson(Lessons.lessons.get(i), j);
                     }
                 }
                 k++;
@@ -199,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
                 .add("xq",xq)
                 .build();
          */
+
 
 
         Request request = new Request.Builder()
@@ -351,16 +359,16 @@ public class MainActivity extends AppCompatActivity {
 
 
     //创建课程方法，j 是星期几
-    private void addLesson(Lesson lessons,int j){
+    private void addLesson(Lesson lessons, int j) {
 
-        for(int i=0;i<lessons.time.count;i++){
+        for (int i = 0; i < lessons.time.count; i++) {
             //设置课程样式
-            final TextView lessonTag=new TextView(MainActivity.this);
+            final TextView lessonTag = new TextView(MainActivity.this);
             lessonTag.setTextAppearance(R.style.grid3);
             lessonTag.setGravity(Gravity.CENTER); //居中
-            String[] color={"#E6862617","#E6C5708B","#E6D4C4B7","#E6EBB10D","#E6ED5126","#E6BACCD9","#E696C24E","#E6E3BD8D","#E6F4D3DC","#E6E69189","#E6F051E4","#E61CA3FF","#E60EE8BD","#E6B7AE8F","#E6F27635","#E6F8BC31","#E6EB8A3A","#E6815C94","#E68A6913","#E615559A","#E6D2D97A","#E6EA8958","#E6EEB8C3","#E6F7DE98","#E6EF475D","#E6C27C88","#E6C6DFC8"};
+            String[] color = {"#E6862617", "#E6C5708B", "#E6D4C4B7", "#E6EBB10D", "#E6ED5126", "#E6BACCD9", "#E696C24E", "#E6E3BD8D", "#E6F4D3DC", "#E6E69189", "#E6F051E4", "#E61CA3FF", "#E60EE8BD", "#E6B7AE8F", "#E6F27635", "#E6F8BC31", "#E6EB8A3A", "#E6815C94", "#E68A6913", "#E615559A", "#E6D2D97A", "#E6EA8958", "#E6EEB8C3", "#E6F7DE98", "#E6EF475D", "#E6C27C88", "#E6C6DFC8"};
             lessonTag.setBackgroundColor(Color.parseColor(color[a[k]]));
-            lessonTag.setText(lessons.name+"\n"+"@"+lessons.classroom);
+            lessonTag.setText(lessons.name + "\n" + "@" + lessons.classroom);
             lessonTag.setId(id);
             final Lesson le=lessons;
             lessonTag.setOnClickListener(new View.OnClickListener() {
@@ -371,18 +379,18 @@ public class MainActivity extends AppCompatActivity {
                     showDdlDialog();
                 }
             }); //给每个课程添加点击事件，打开编辑ddl
-            GridLayout.Spec rowSpec = GridLayout.spec(lessons.time.begin[j],lessons.time.last);
-            GridLayout.Spec columnSpec=GridLayout.spec(j+1);
-            final GridLayout.LayoutParams params=new GridLayout.LayoutParams(rowSpec,columnSpec);//设置添加的课程行与列
+            GridLayout.Spec rowSpec = GridLayout.spec(lessons.time.begin[j], lessons.time.last);
+            GridLayout.Spec columnSpec = GridLayout.spec(j + 1);
+            final GridLayout.LayoutParams params = new GridLayout.LayoutParams(rowSpec, columnSpec);//设置添加的课程行与列
             params.setGravity(Gravity.FILL);
-            params.width=0;
-            params.height=0;
-            params.setMargins(1,1,1,1);
+            params.width = 0;
+            params.height = 0;
+            params.setMargins(1, 1, 1, 1);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    gridLayout.addView(lessonTag,params);
-                    Log.e("t","addview");
+                    gridLayout.addView(lessonTag, params);
+                    Log.e("t", "addview");
                 }
             });
         }
@@ -390,8 +398,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //注销登录，返回登录界面
-    private void logout(){
-        Intent intent=new Intent(MainActivity.this,Login.class);
+    private void logout() {
+        Intent intent = new Intent(MainActivity.this, Login.class);
         startActivity(intent);
         finish();
     }
@@ -399,21 +407,23 @@ public class MainActivity extends AppCompatActivity {
     //创建菜单
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.region_left_menu,menu);
+        getMenuInflater().inflate(R.menu.region_left_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
     //菜单事件
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.set_current_menu:
-                Toast.makeText(MainActivity.this,"设置当前周",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "设置当前周", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.change_date_menu:
-                Toast.makeText(MainActivity.this,"切换学期",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "切换学期", Toast.LENGTH_SHORT).show();
+                showChangeXq();
                 break;
             case R.id.log_out:
-                Intent intent=new Intent(MainActivity.this,Login.class);
+                Intent intent = new Intent(MainActivity.this, Login.class);
                 startActivity(intent);
                 finish();
                 break;
@@ -422,7 +432,7 @@ public class MainActivity extends AppCompatActivity {
                 //Toast.makeText(MainActivity.this,"添加课程 ",Toast.LENGTH_SHORT).show();
                 break;
             case R.id.delete_class_menu:
-                Toast.makeText(MainActivity.this,"删除课程",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "删除课程", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -432,25 +442,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //显示添加课程对话框
-    public void showAddDialog(){
-        LayoutInflater factory= LayoutInflater.from(this);
-        final View view=factory.inflate(R.layout.add_dialog,null);
-        final EditText Cname=view.findViewById(R.id.Cname);
-        final EditText Croom=view.findViewById(R.id.Croom);
-        final EditText Bweek=view.findViewById(R.id.Bweek);
-        final EditText Eweek=view.findViewById(R.id.Eweek);
-        final EditText Btime=view.findViewById(R.id.Btime);
-        final EditText Etime=view.findViewById(R.id.Etime);
-        final EditText week=view.findViewById(R.id.week);
-        final CheckBox checkBox1=view.findViewById(R.id.checkBox1);
-        final CheckBox checkBox2=view.findViewById(R.id.checkBox2);
-        AlertDialog.Builder add=new AlertDialog.Builder(MainActivity.this);
+    public void showAddDialog() {
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View view = factory.inflate(R.layout.add_dialog, null);
+        final EditText Cname = view.findViewById(R.id.Cname);
+        final EditText Croom = view.findViewById(R.id.Croom);
+        final EditText Bweek = view.findViewById(R.id.Bweek);
+        final EditText Eweek = view.findViewById(R.id.Eweek);
+        final EditText Btime = view.findViewById(R.id.Btime);
+        final EditText Etime = view.findViewById(R.id.Etime);
+        final EditText week = view.findViewById(R.id.week);
+        final CheckBox checkBox1 = view.findViewById(R.id.checkBox1);
+        final CheckBox checkBox2 = view.findViewById(R.id.checkBox2);
+        AlertDialog.Builder add = new AlertDialog.Builder(MainActivity.this);
         add.setTitle("添加课程");
         add.setView(view);
-        add.setPositiveButton("确定",new DialogInterface.OnClickListener(){
+        add.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Lesson temp = new Lesson();
+                int exist = 0;
+                for (Lesson l : Lessons.lessons) {
+                    if (l.name.equals(Cname.getText().toString())) {
+                        l.time.count++;
+                        temp = l;
+                        exist = 1;
+                    }
+                }
                 temp.time.count = 1;
                 if (!Cname.getText().toString().equals("") && !week.getText().toString().equals("") && !Btime.getText().toString().equals("") && !Etime.getText().toString().equals("")) {
                     temp.name = Cname.getText().toString();
@@ -472,7 +490,8 @@ public class MainActivity extends AppCompatActivity {
                     if (k > 25) {
                         k = k % 25;
                     }
-
+                    if (exist == 0)
+                        Lessons.lessons.add(temp);
                     addLesson(temp, Integer.parseInt(week.getText().toString()));
                     putJson(temp);
                     Toast.makeText(MainActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
@@ -481,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
             }  //Toast.makeText(MainActivity.this, "添加失败", Toast.LENGTH_SHORT).show();
 
         });
-        add.setNegativeButton("取消",new DialogInterface.OnClickListener(){
+        add.setNegativeButton("取消", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
@@ -532,4 +551,79 @@ public class MainActivity extends AppCompatActivity {
         ddl.show();
     }
 
+    //显示切换学期
+    public void showChangeXq() {
+        final LayoutInflater factory = LayoutInflater.from(this);
+        AlertDialog.Builder change = new AlertDialog.Builder(MainActivity.this);
+        View view = factory.inflate(R.layout.changexq, null);
+        ArrayList<RadioButton> radioButtons=new ArrayList<>();
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton2));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton3));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton4));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton5));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton6));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton7));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton8));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton9));
+        radioButtons.add((RadioButton)view.findViewById(R.id.radioButton10));
+        final Calendar now = Calendar.getInstance();
+        int xn;
+        if (now.get(Calendar.MONTH) >= 9) {
+            xn = now.get(Calendar.YEAR);
+        } else {
+            xn = now.get(Calendar.YEAR) - 1;
+        }
+        xn=receive.getInt("xn",xn);
+        for(int i=0;i<radioButtons.size();i+=2){
+            RadioButton button1=radioButtons.get(i);
+            RadioButton button2=radioButtons.get(i+1);
+            String content=(xn+i/2-2)+"-"+(xn+i/2-1)+"学年,  ";
+            button1.setText(content+"秋季学期");
+            button2.setText(content+"春季学期");
+        }
+        change.setView(view);
+        RadioGroup radioGroup=view.findViewById(R.id.radio);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                RadioButton radioButton=group.findViewById(checkedId);
+                Toast.makeText(MainActivity.this, radioButton.getText(), Toast.LENGTH_SHORT).show();
+                String xn=radioButton.getText().toString().split(",  ")[0];
+                String xq=radioButton.getText().toString().split(",  ")[1];
+                xn=xn.substring(0,4);
+                if(xq.equals("秋季学期"))
+                    xq="1";
+                else xq="2";
+                editor.putInt("xn",Integer.parseInt(xn));
+                editor.putString("xq",xq);
+                editor.putInt("change",1);
+                editor.apply();
+                //gridLayout.removeAllViews();
+                /*for(int j=1;j<14;j++) {
+                    TextView textView = new TextView(MainActivity.this);
+                    //textView.setGravity(Gravity.CENTER); //居中
+                    if(j==10)
+                        textView.setText("0");
+                    else if(j==11)
+                        textView.setText("A");
+                    else if(j==12)
+                        textView.setText("B");
+                    else if(j==13)
+                        textView.setText("C");
+                    else textView.setText(String.valueOf(j));
+                    GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(j,1),GridLayout.spec(0) );//设置添加的课程行与列
+                    textView.setTextAppearance(R.style.grid);
+                    gridLayout.addView(textView,params);
+                }*/
+                Lessons.lessons.clear();
+                gridLayout.removeAllViews();
+                Intent intent=new Intent(MainActivity.this,MainActivity.class);
+                startActivity(intent);
+                finish();
+
+            }
+        });
+        change.show();
+    }
 }
