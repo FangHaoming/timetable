@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -269,7 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
         for(int i=0;i<lessons.time.count;i++){
             //设置课程样式
-            TextView lessonTag=new TextView(MainActivity.this);
+            final TextView lessonTag=new TextView(MainActivity.this);
             lessonTag.setTextAppearance(R.style.grid3);
             lessonTag.setGravity(Gravity.CENTER); //居中
             String[] color={"#E6862617","#E6C5708B","#E6D4C4B7","#E6EBB10D","#E6ED5126","#E6BACCD9","#E696C24E","#E6E3BD8D","#E6F4D3DC","#E6E69189","#E6F051E4","#E61CA3FF","#E60EE8BD","#E6B7AE8F","#E6F27635","#E6F8BC31","#E6EB8A3A","#E6815C94","#E68A6913","#E615559A","#E6D2D97A","#E6EA8958","#E6EEB8C3","#E6F7DE98","#E6EF475D","#E6C27C88","#E6C6DFC8"};
@@ -284,12 +285,18 @@ public class MainActivity extends AppCompatActivity {
             }); //给每个课程添加点击事件，打开编辑ddl
             GridLayout.Spec rowSpec = GridLayout.spec(lessons.time.begin[j],lessons.time.last);
             GridLayout.Spec columnSpec=GridLayout.spec(j+1);
-            GridLayout.LayoutParams params=new GridLayout.LayoutParams(rowSpec,columnSpec);//设置添加的课程行与列
+            final GridLayout.LayoutParams params=new GridLayout.LayoutParams(rowSpec,columnSpec);//设置添加的课程行与列
             params.setGravity(Gravity.FILL);
             params.width=0;
             params.height=0;
             params.setMargins(1,1,1,1);
-            gridLayout.addView(lessonTag,params);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    gridLayout.addView(lessonTag,params);
+                    Log.e("t","addview");
+                }
+            });
         }
         id++;
     }
@@ -355,37 +362,33 @@ public class MainActivity extends AppCompatActivity {
         add.setPositiveButton("确定",new DialogInterface.OnClickListener(){
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                Lesson temp=new Lesson();
-                if(!Cname.getText().toString().equals("")&&!week.getText().toString().equals("")&&!Btime.getText().toString().equals("")&&!Etime.getText().toString().equals("")){
-                    temp.name=Cname.getText().toString();
-                    if (Btime.getText().toString().toUpperCase().equals("A")) {
+                Lesson temp = new Lesson();
+                temp.time.count = 1;
+                if (!Cname.getText().toString().equals("") && !week.getText().toString().equals("") && !Btime.getText().toString().equals("") && !Etime.getText().toString().equals("")) {
+                    temp.name = Cname.getText().toString();
+                    String begin = Btime.getText().toString();
+                    if (begin.matches("^[0-9]*$"))
+                        temp.time.begin[Integer.parseInt(week.getText().toString())] = Integer.parseInt(begin);
+                    else if (begin.toUpperCase().equals("A"))
                         temp.time.begin[Integer.parseInt(week.getText().toString())] = 11;
-                    }
-                    else if(Btime.getText().toString().toUpperCase().equals("B"))
+                    else if (begin.toUpperCase().equals("B"))
                         temp.time.begin[Integer.parseInt(week.getText().toString())] = 12;
-                    }
-                    else if (Btime.getText().toString().toUpperCase().equals("C")) {
+                    else if (begin.toUpperCase().equals("C"))
                         temp.time.begin[Integer.parseInt(week.getText().toString())] = 13;
-                    }
-                    else{
-                        temp.time.begin[1] = Integer.parseInt(Btime.getText().toString());
-                        //temp.time.begin[Integer.parseInt(week.getText().toString())] = Integer.parseInt(Btime.getText().toString());
-                    }
-                    temp.time.last=1+Etime.getText().toString().toUpperCase().toCharArray()[0]-Btime.getText().toString().toUpperCase().toCharArray()[0];
-                    if(!Croom.getText().equals(""))
-                        temp.classroom=Croom.getText().toString();
-                    else {
+                    temp.time.last = 1 + Etime.getText().toString().toUpperCase().toCharArray()[0] - Btime.getText().toString().toUpperCase().toCharArray()[0];
+                    if (!Croom.getText().equals(""))
+                        temp.classroom = Croom.getText().toString();
+                    else
                         temp.classroom = "";
-                    }
                     k++;
-                    if(k>25) {
+                    if (k > 25) {
                         k = k % 25;
                     }
-                    addLesson(temp,Integer.parseInt(week.getText().toString()));
-                    Toast.makeText(MainActivity.this,"添加成功", Toast.LENGTH_SHORT).show();
+                    addLesson(temp, Integer.parseInt(week.getText().toString()));
+                    Toast.makeText(MainActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
                 }
 
-                    //Toast.makeText(MainActivity.this, "添加失败", Toast.LENGTH_SHORT).show();
+            }  //Toast.makeText(MainActivity.this, "添加失败", Toast.LENGTH_SHORT).show();
 
         });
         add.setNegativeButton("取消",new DialogInterface.OnClickListener(){
