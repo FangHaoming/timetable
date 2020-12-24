@@ -26,6 +26,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONException;
+import com.alibaba.fastjson.JSONObject;
+
 
 import java.io.IOException;
 import java.util.Calendar;
@@ -38,6 +41,9 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.example.myapplication22.Lessons.lessons;
+
 //
 public class MainActivity extends AppCompatActivity {
 
@@ -45,22 +51,23 @@ public class MainActivity extends AppCompatActivity {
     //private Bundle receive;/
 
     private Lesson[] lessons1; //解析好的课程信息
-    private  int lessonCount;   //一个学期内总课程数
-    private Map<String,Object>[] lesson1;
+    private int lessonCount;   //一个学期内总课程数
+    private Map<String, Object>[] lesson1;
     private SharedPreferences receive;
     private SharedPreferences.Editor editor;
     private int k; //色号
-    private int id=0; //id号0-50一一对应课程号
+    private int id = 0; //id号0-50一一对应课程号
     private int[] a;
-    private int CurID=0;//点击课程，当前ID
+    private int CurID = 0;//点击课程，当前ID
+    private JSONObject json = new JSONObject();
 
     //初始化视图
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        receive=getSharedPreferences("data", Context.MODE_PRIVATE);
-        editor=receive.edit();
+        receive = getSharedPreferences("data", Context.MODE_PRIVATE);
+        editor = receive.edit();
 
         ActionBar actionBar = getSupportActionBar();
         /*
@@ -77,72 +84,85 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         setContentView(R.layout.activity_main);
-        gridLayout=(GridLayout)findViewById(R.id.gridlayout);
+        gridLayout = (GridLayout) findViewById(R.id.gridlayout);
         addWholeLesson();
+
     }
 
     //创建课程表
-    public void addWholeLesson(){
-        Calendar now=Calendar.getInstance();
+    public void addWholeLesson() {
+        Calendar now = Calendar.getInstance();
         String xn;
         String xq;
-        if(now.get(Calendar.MONTH)>=9) {
-            xn = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.YEAR) + 1)+"学年";
-            xq="1";
+        if (now.get(Calendar.MONTH) >= 9) {
+            xn = now.get(Calendar.YEAR) + "-" + (now.get(Calendar.YEAR) + 1) + "学年";
+            xq = "1";
+        } else {
+            xn = (now.get(Calendar.YEAR) - 1) + "-" + now.get(Calendar.YEAR) + "学年";
+            xq = "2";
         }
-        else{
-            xn = (now.get(Calendar.YEAR)-1) + "-" + now.get(Calendar.YEAR)+"学年";
-            xq="2";
+        if (receive.getBoolean("isLoad", false) == false) {
+            sendByPost(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), xn, xq);
+            while (lessonCount == 0) {
+            }
         }
-        if(receive.getBoolean("isLoad",false)==false){
-            sendByPost(receive.getString("txtUserID",""),receive.getString("txtUserPwd",""),xn,xq);
-            while(lessonCount==0){}
-        }
-        if(receive.getString("info","")!=null){
+        if (receive.getString("info", "") != null) {
             readResponse();
-            k=0;
-            a=new int[20];
-            if(receive.getString("color","")==""){
-                Map<String,Object>map=new HashMap<>();
+            //readJson();
+            k = 0;
+            a = new int[20];
+            if (receive.getString("color", "") == "") {
+                Map<String, Object> map = new HashMap<>();
                 //创建随机颜色标号
-                Random random=new Random();
-                int count=0;
-                while(count<20){
-                    boolean flag=true;
-                    int r=random.nextInt(27);
-                    for(int m=0;m<20;m++){
-                        if(r==a[m]){
-                            flag=false;
+                Random random = new Random();
+                int count = 0;
+                while (count < 20) {
+                    boolean flag = true;
+                    int r = random.nextInt(27);
+                    for (int m = 0; m < 20; m++) {
+                        if (r == a[m]) {
+                            flag = false;
                             break;
                         }
                     }
-                    if(flag){
-                        a[count]=r;
-                        map.put("c"+count,String.valueOf(r));
+                    if (flag) {
+                        a[count] = r;
+                        map.put("c" + count, String.valueOf(r));
                         count++;
                     }
                 }
-                String json=JSON.toJSONString(map);
-                editor.putString("color",json);
+                String json = JSON.toJSONString(map);
+                editor.putString("color", json);
                 editor.apply();
             }
 
-            String color1 =receive.getString("color","");
-            Map<String,Object> objectMap= JSON.parseObject(color1,Map.class);
-            for(int i=0;i<a.length;i++){
-                a[i]=Integer.parseInt(String.valueOf(objectMap.get("c"+i)));
+            String color1 = receive.getString("color", "");
+            Map<String, Object> objectMap = JSON.parseObject(color1, Map.class);
+            for (int i = 0; i < a.length; i++) {
+                a[i] = Integer.parseInt(String.valueOf(objectMap.get("c" + i)));
             }
-            for(int i = 0; i<lessonCount; i++) {
-                for(int j=0;j<7;j++) {
+            for (int i = 0; i < lesson1.length; i++) {
+                for (int j = 0; j < 7; j++) {
                     String time = (String) lesson1[i].get(String.valueOf(j));
-                    if (!time.contains("null")&&lessons1[i].time.during[0]>=3) { //这里只显示第三周开始的课程
-                        addLesson(Lessons.lessons.get(i), j);
+                    if (!time.contains("null") && lessons1[i].time.during[0] >= 3) { //这里只显示第三周开始的课程
+                        addLesson(lessons.get(i), j);
                     }
                 }
                 k++;
-                if(k>25)
-                    k=k%25;
+                if (k > 25)
+                    k = k % 25;
             }
+            /*
+            for(int i=lesson1.length;i<Lessons.lessons.size();i++){
+                for (int j = 0; j < 7; j++){
+                    if(!String.valueOf(Lessons.lessons.get(i).time.begin[j]).contains("null")){
+                        addLesson(Lessons.lessons.get(i),j);
+                    }
+                }
+                k++;
+            }
+
+             */
         }
 
     }
@@ -152,14 +172,14 @@ public class MainActivity extends AppCompatActivity {
         //172.16.226.68
         //10.22.32.85
         String Url = "http://172.16.226.68:8080/servlet.timeTableServlet";
-        String path = Url ;
+        String path = Url;
         OkHttpClient client = new OkHttpClient();
 
         final FormBody formBody = new FormBody.Builder()
                 .add("txtUserID", txtUserID)
                 .add("txtUserPwd", txtUserPwd)
-                .add("xn",xn)
-                .add("xq",xq)
+                .add("xn", xn)
+                .add("xq", xq)
                 .build();
         /*
         final FormBody formBody = new FormBody.Builder()
@@ -181,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
          */
 
 
-
         Request request = new Request.Builder()
                 .url(path)
                 .post(formBody)
@@ -194,11 +213,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(okhttp3.Call call, Response response) throws IOException {
-                String info=response.body().string();
-                editor.putString("info",info);
-                editor.putBoolean("isLoad",true);
+                String info = response.body().string();
+                editor.putString("info", info);
+                editor.putBoolean("isLoad", true);
                 editor.apply();
-                lessonCount=1;
+                lessonCount = 1;
                 //System.out.println("*************"+info);
 
             }
@@ -206,25 +225,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //解析response返回的课程信息(Json格式)，使之用来生成课程表
-    private void readResponse(){
-        String info =receive.getString("info","");
-        Map<String,Object> objectMap= JSON.parseObject(info,Map.class);
-        Map<String,Object>[] lesson=new Map[Integer.parseInt((String)(objectMap.get("length")))];
-        Lesson[] lessons=new Lesson[Integer.parseInt((String)(objectMap.get("length")))];
+    private void readResponse() {
+        String info = receive.getString("info", "");
+        Map<String, Object> objectMap = JSON.parseObject(info, Map.class);
+        Map<String, Object>[] lesson = new Map[Integer.parseInt((String) (objectMap.get("length")))];
+        Lesson[] lessons = new Lesson[Integer.parseInt((String) (objectMap.get("length")))];
         //char[][] temp=new char[7][];
-        for(int i = 0; i<Integer.parseInt((String)(objectMap.get("length"))); i++){
-            lesson[i]=JSON.parseObject(String.valueOf(objectMap.get("lesson"+i)),Map.class);
-            lessons[i]=new Lesson();
-            lessons[i].name=String.valueOf(lesson[i].get("name"));
-            lessons[i].no=String.valueOf(lesson[i].get("no"));
-            lessons[i].teacher=String.valueOf(lesson[i].get("teacher"));
-            lessons[i].classroom=String.valueOf(lesson[i].get("classroom"));
-            lessons[i].credit=String.valueOf(lesson[i].get("credit"));
-            String temp[]=String.valueOf(lesson[i].get("during")).split("-");
-            lessons[i].time.during[0]=Integer.parseInt(temp[0]);
-            lessons[i].time.during[1]=Integer.parseInt(temp[1]);
-            lessons[i].time.count=0;
-            for(int j=0;j<7;j++) {
+        for (int i = 0; i < Integer.parseInt((String) (objectMap.get("length"))); i++) {
+            lesson[i] = JSON.parseObject(String.valueOf(objectMap.get("lesson" + i)), Map.class);
+            lessons[i] = new Lesson();
+            lessons[i].name = String.valueOf(lesson[i].get("name"));
+            lessons[i].no = String.valueOf(lesson[i].get("no"));
+            lessons[i].teacher = String.valueOf(lesson[i].get("teacher"));
+            lessons[i].classroom = String.valueOf(lesson[i].get("classroom"));
+            lessons[i].credit = String.valueOf(lesson[i].get("credit"));
+            String temp[] = String.valueOf(lesson[i].get("during")).split("-");
+            lessons[i].time.during[0] = Integer.parseInt(temp[0]);
+            lessons[i].time.during[1] = Integer.parseInt(temp[1]);
+            lessons[i].time.count = 0;
+            for (int j = 0; j < 7; j++) {
                 String time = (String) lesson[i].get(String.valueOf(j));
                 String timeList[] = time.split("");
                 if (!time.contains("null")) {
@@ -254,17 +273,82 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         lessons[i].time.isOddWeek = 2;
                         lessons[i].time.begin[j] = Integer.parseInt(timeList[1]);
-                        lessons[i].time.last = timeList.length-1;
+                        lessons[i].time.last = timeList.length - 1;
                     }
                     //System.out.println(lessons[i].time.begin[j]);
                 }
             }
             Lessons.lessons.add(lessons[i]);
+            putJson(lessons[i]);
         }
-        lessons1=lessons;
-        lesson1=lesson;
-        lessonCount=Integer.parseInt(String.valueOf(objectMap.get("length")));
+        lessons1 = lessons;
+        lesson1 = lesson;
+        lessonCount = Integer.parseInt(String.valueOf(objectMap.get("length")));
     }
+
+    //把课程加入到json中
+    private void putJson(Lesson lesson) {
+        JSONObject js = new JSONObject();
+        try {
+            js.put("name", lesson.name);
+            js.put("classroom", lesson.classroom);
+            js.put("no", lesson.no);
+            js.put("credit", lesson.credit);
+            js.put("teacher", lesson.teacher);
+            js.put("note", lesson.note);
+            js.put("during0", lesson.time.during[0]);
+            js.put("during1", lesson.time.during[1]);
+            js.put("begin0", lesson.time.begin[0]);
+            js.put("begin1", lesson.time.begin[1]);
+            js.put("begin2", lesson.time.begin[2]);
+            js.put("begin3", lesson.time.begin[3]);
+            js.put("begin4", lesson.time.begin[4]);
+            js.put("begin5", lesson.time.begin[5]);
+            js.put("begin6", lesson.time.begin[6]);
+            js.put("isOddWeek", lesson.time.isOddWeek);
+            js.put("last", lesson.time.last);
+            js.put("count", lesson.time.last);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        try {
+            json.put("lesson" + json.size(), js);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        editor.putString("LESSON", json.toString());
+        editor.apply();
+    }
+
+    //把json中课程读到静态类中
+    private void readJson() {
+        String str = receive.getString("LESSON", "");
+        try {
+            JSONObject jsonObject = JSON.parseObject(str);
+            for (int i = 0; i < jsonObject.size(); i++) {
+                Lesson temp = new Lesson();
+                JSONObject tempObj = jsonObject.getJSONObject("lesson" + i);
+                temp.name = tempObj.getString("name");
+                temp.classroom = tempObj.getString("classroom");
+                temp.credit = tempObj.getString("credit");
+                temp.teacher = tempObj.getString("teacher");
+                temp.no = tempObj.getString("no");
+                temp.note = tempObj.getString("note");
+                temp.time.count = tempObj.getInteger("count");
+                temp.time.last = tempObj.getInteger("last");
+                temp.time.isOddWeek = tempObj.getInteger("isOddWeek");
+                for (int j = 0; j < 7; j++)
+                    temp.time.begin[j] = tempObj.getInteger("begin" + j);
+                temp.time.during[0] = tempObj.getInteger("during0");
+                temp.time.during[1] = tempObj.getInteger("during1");
+                Lessons.lessons.add(temp);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     //创建课程方法，j 是星期几
     private void addLesson(Lesson lessons,int j){
@@ -278,10 +362,12 @@ public class MainActivity extends AppCompatActivity {
             lessonTag.setBackgroundColor(Color.parseColor(color[a[k]]));
             lessonTag.setText(lessons.name+"\n"+"@"+lessons.classroom);
             lessonTag.setId(id);
+            final Lesson le=lessons;
             lessonTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CurID=lessonTag.getId();
+                    CurID= Lessons.lessons.indexOf(le);
+                    //CurID=lessonTag.getId();
                     showDdlDialog();
                 }
             }); //给每个课程添加点击事件，打开编辑ddl
@@ -388,6 +474,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     addLesson(temp, Integer.parseInt(week.getText().toString()));
+                    putJson(temp);
                     Toast.makeText(MainActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
                 }
 
@@ -414,18 +501,32 @@ public class MainActivity extends AppCompatActivity {
         TextView Cno=view.findViewById(R.id.Cno);
         TextView Cteacher=view.findViewById(R.id.Cteacher);
         final EditText Cnote=view.findViewById(R.id.Cnote);
-        Cname.setText(Lessons.lessons.get(CurID).name);
-        Croom.setText(Lessons.lessons.get(CurID).classroom);
-        Ccredit.setText(Lessons.lessons.get(CurID).credit);
-        Cno.setText(Lessons.lessons.get(CurID).no);
-        Cteacher.setText(Lessons.lessons.get(CurID).teacher);
-        Cnote.setText(Lessons.lessons.get(CurID).note);
+        Cname.setText(lessons.get(CurID).name);
+        Croom.setText(lessons.get(CurID).classroom);
+        Ccredit.setText(lessons.get(CurID).credit);
+        Cno.setText(lessons.get(CurID).no);
+        Cteacher.setText(lessons.get(CurID).teacher);
+        Cnote.setText(lessons.get(CurID).note);
         ddl.setView(view);
         ddl.setPositiveButton("保存", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(!Cnote.getText().equals(""))
-                    Lessons.lessons.get(CurID).note=Cnote.getText().toString();
+                if(!Cnote.getText().toString().equals("")) {
+                    lessons.get(CurID).note = Cnote.getText().toString();
+                    try {
+                        JSONObject j=json.getJSONObject("lesson"+CurID);
+                        j.put("note",Cnote.getText().toString());
+                        json.put("lesson"+CurID,j);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    //Lessons.lessons.set(CurID,Lessons.lessons.get(CurID));
+                    //Lessons.lessons.add(Lessons.lessons.get(CurID));
+                    //Lessons.lessons.remove(Lessons.lessons.get(CurID));
+                    editor.putString("LESSON",json.toString());
+                    editor.apply();
+                    Toast.makeText(MainActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
+                }
             }
         });
         ddl.show();
