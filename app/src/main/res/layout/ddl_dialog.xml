@@ -123,6 +123,7 @@
             android:id="@+id/Cnote"
             android:layout_width="200dp"
             android:background="@drawable/border_black"
+            android:textAlignment="textStart"
             android:layout_height="200dp"></EditText>
     </LinearLayout>
 
