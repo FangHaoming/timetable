@@ -203,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
         //172.16.226.68
         //10.22.32.85
         String Url = "http://172.16.226.68:8080/servlet.timeTableServlet";
+        //String Url = "http://10.22.32.85:8080/servlet.timeTableServlet";
+
         String path = Url;
         OkHttpClient client = new OkHttpClient();
 
