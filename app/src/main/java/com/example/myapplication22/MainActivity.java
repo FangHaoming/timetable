@@ -1,5 +1,7 @@
 package com.example.myapplication22;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -579,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
     //显示切换学期
     public void showChangeXq() {
         final LayoutInflater factory = LayoutInflater.from(this);
-        AlertDialog.Builder change = new AlertDialog.Builder(MainActivity.this);
+        final AlertDialog.Builder change = new AlertDialog.Builder(MainActivity.this);
         View view = factory.inflate(R.layout.changexq, null);
         ArrayList<RadioButton> radioButtons=new ArrayList<>();
         radioButtons.add((RadioButton)view.findViewById(R.id.radioButton));
@@ -608,6 +610,7 @@ public class MainActivity extends AppCompatActivity {
             button2.setText(content+"春季学期");
         }
         change.setView(view);
+        final Dialog diglog=change.show();
         RadioGroup radioGroup=view.findViewById(R.id.radio);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -643,12 +646,13 @@ public class MainActivity extends AppCompatActivity {
                 }*/
                 Lessons.lessons.clear();
                 gridLayout.removeAllViews();
+                diglog.cancel();
                 Intent intent=new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
                 finish();
 
             }
         });
-        change.show();
+        diglog.show();
     }
 }
