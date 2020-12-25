@@ -114,11 +114,12 @@ public class MainActivity extends AppCompatActivity {
             while (lessonCount == 0) {
             }
         }
-        if (receive.getString("info", null) != null) {
+        if (receive.getString("LESSON", "")!=null) {
             readResponse();
+            readJson();
             k = 0;
             a = new int[20];
-            if (receive.getString("color", "") == "") {
+            if (receive.getString("color", "").equals("")) {
                 Map<String, Object> map = new HashMap<>();
                 //创建随机颜色标号
                 Random random = new Random();
@@ -148,12 +149,16 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < a.length; i++) {
                 a[i] = Integer.parseInt(String.valueOf(objectMap.get("c" + i)));
             }
+
+            //添加所有课程（包括手写的）
             for (int i = 0; i < Lessons.lessons.size(); i++) {
+                System.out.println("sizeof"+Lessons.lessons.size());
                 for (int j = 0; j < 7; j++) {
-                    String time = (String) lesson1[i].get(String.valueOf(j));
-                    if (!time.contains("null") && lessons1[i].time.during[0] >= 0) { //这里只显示第三周开始的课程
+                    if(Lessons.lessons.get(i).time.begin[j]!=-1){
                         addLesson(Lessons.lessons.get(i), j);
+                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
                     }
+
                 }
                 k++;
                 if (k > 25)
@@ -235,6 +240,8 @@ public class MainActivity extends AppCompatActivity {
     //解析response返回的课程信息(Json格式)，使之用来生成课程表
     private void readResponse() {
         String info = receive.getString("info", "");
+        //System.out.println(info);
+        //info="{\"length\":\"8\",\"lesson4\":\"{\\\"no\\\":\\\"117558\\\",\\\"classroom\\\":\\\"E203\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"null\\\",\\\"2\\\":\\\"89\\\",\\\"teacher\\\":\\\"于津\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"89\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"数据结构与算法\\\",\\\"credit\\\":\\\"4.0\\\"}\",\"lesson5\":\"{\\\"no\\\":\\\"116270\\\",\\\"classroom\\\":\\\"G座306\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"67\\\",\\\"2\\\":\\\"null\\\",\\\"teacher\\\":\\\"Yunier Perez Sarduy\\\",\\\"3\\\":\\\"AB\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"英语(ELC4)\\\",\\\"credit\\\":\\\"4.0\\\"}\",\"lesson6\":\"{\\\"no\\\":\\\"117253\\\",\\\"classroom\\\":\\\"羽毛球场（体育馆）\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"null\\\",\\\"2\\\":\\\"null\\\",\\\"teacher\\\":\\\"魏彪\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"67\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"羽毛球（1）\\\",\\\"credit\\\":\\\"1.0\\\"}\",\"lesson7\":\"{\\\"no\\\":\\\"116804\\\",\\\"classroom\\\":\\\"E307\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"null\\\",\\\"2\\\":\\\"12\\\",\\\"teacher\\\":\\\"王斌\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"34\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"毛泽东思想和中国特色社会主义理论体系概论\\\",\\\"credit\\\":\\\"4.0\\\"}\",\"lesson0\":\"{\\\"no\\\":\\\"117562\\\",\\\"classroom\\\":\\\"E203\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"null\\\",\\\"2\\\":\\\"AB\\\",\\\"teacher\\\":\\\"廖海泳\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"图像处理与计算机视觉\\\",\\\"credit\\\":\\\"2.0\\\"}\",\"lesson1\":\"{\\\"no\\\":\\\"117529\\\",\\\"classroom\\\":\\\"E阶梯教室102\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"890\\\",\\\"2\\\":\\\"null\\\",\\\"teacher\\\":\\\"张承钿\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"数据库原理\\\",\\\"credit\\\":\\\"4.0\\\"}\",\"lesson2\":\"{\\\"no\\\":\\\"118324\\\",\\\"classroom\\\":\\\"*\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"null\\\",\\\"2\\\":\\\"null\\\",\\\"teacher\\\":\\\"孙敬伟(助教)\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"null\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"走近核科学技术（网络课程）\\\",\\\"credit\\\":\\\"2.0\\\"}\",\"lesson3\":\"{\\\"no\\\":\\\"116685\\\",\\\"classroom\\\":\\\"E阶梯教室203\\\",\\\"during\\\":\\\"1-16\\\",\\\"0\\\":\\\"null\\\",\\\"1\\\":\\\"34\\\",\\\"2\\\":\\\"null\\\",\\\"teacher\\\":\\\"宋晓红\\\",\\\"3\\\":\\\"null\\\",\\\"4\\\":\\\"34\\\",\\\"5\\\":\\\"null\\\",\\\"6\\\":\\\"null\\\",\\\"name\\\":\\\"普通物理学\\\",\\\"credit\\\":\\\"4.0\\\"}\"}";
         Map<String, Object> objectMap = JSON.parseObject(info, Map.class);
         Map<String, Object>[] lesson = new Map[Integer.parseInt((String) (objectMap.get("length")))];
         Lesson[] lessons = new Lesson[Integer.parseInt((String) (objectMap.get("length")))];
@@ -285,12 +292,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                     //System.out.println(lessons[i].time.begin[j]);
                 }
+                else
+                    lessons[i].time.begin[j]=-1;
             }
-            Lessons.lessons.add(lessons[i]);
+            if(lessons[i].note==null)
+                lessons[i].note="";
             putJson(lessons[i]);
         }
-        lessons1 = lessons;
-        lesson1 = lesson;
         lessonCount = Integer.parseInt(String.valueOf(objectMap.get("length")));
     }
 
@@ -326,11 +334,15 @@ public class MainActivity extends AppCompatActivity {
         }
         editor.putString("LESSON", json.toString());
         editor.apply();
+        System.out.println("***************This is json in putJson:"+json.toString());
+        System.out.println("******This is LESSON in putJson:"+receive.getString("LESSON",""));
+
     }
 
     //把json中课程读到静态类中
     private void readJson() {
         String str = receive.getString("LESSON", "");
+        System.out.println("***********This is readJson:"+str);
         try {
             JSONObject jsonObject = JSON.parseObject(str);
             for (int i = 0; i < jsonObject.size(); i++) {
@@ -374,7 +386,13 @@ public class MainActivity extends AppCompatActivity {
             lessonTag.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    CurID= Lessons.lessons.indexOf(le);
+                    for(int t=0;t<Lessons.lessons.size();t++){
+                        if(Lessons.lessons.get(t).name.equals(le.name)){
+                            CurID=t;
+                            break;
+                        }
+                    }
+                    //CurID= Lessons.lessons.indexOf(le);
                     //CurID=lessonTag.getId();
                     showDdlDialog();
                 }
@@ -386,6 +404,8 @@ public class MainActivity extends AppCompatActivity {
             params.width = 0;
             params.height = 0;
             params.setMargins(1, 1, 1, 1);
+            gridLayout.addView(lessonTag, params);
+            /*
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -393,6 +413,8 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("t", "addview");
                 }
             });
+
+             */
         }
         id++;
     }
@@ -511,6 +533,8 @@ public class MainActivity extends AppCompatActivity {
 
     //显示ddl对话框
     public void showDdlDialog(){
+        if(Lessons.lessons.size()==0)
+            readJson();
         LayoutInflater factory= LayoutInflater.from(this);
         AlertDialog.Builder ddl=new AlertDialog.Builder(MainActivity.this);
         View view=factory.inflate(R.layout.ddl_dialog,null);
@@ -520,30 +544,31 @@ public class MainActivity extends AppCompatActivity {
         TextView Cno=view.findViewById(R.id.Cno);
         TextView Cteacher=view.findViewById(R.id.Cteacher);
         final EditText Cnote=view.findViewById(R.id.Cnote);
-        Cname.setText(lessons.get(CurID).name);
-        Croom.setText(lessons.get(CurID).classroom);
-        Ccredit.setText(lessons.get(CurID).credit);
-        Cno.setText(lessons.get(CurID).no);
-        Cteacher.setText(lessons.get(CurID).teacher);
-        Cnote.setText(lessons.get(CurID).note);
+        Cname.setText(Lessons.lessons.get(CurID).name);
+        Croom.setText(Lessons.lessons.get(CurID).classroom);
+        Ccredit.setText(Lessons.lessons.get(CurID).credit);
+        Cno.setText(Lessons.lessons.get(CurID).no);
+        Cteacher.setText(Lessons.lessons.get(CurID).teacher);
+        Cnote.setText(Lessons.lessons.get(CurID).note);
         ddl.setView(view);
+        System.out.println("*****This is init note j in dialog:"+Lessons.lessons.get(CurID).note);
+        System.out.println("*****This is init j in dialog:"+Lessons.lessons.get(CurID).name);
         ddl.setPositiveButton("保存", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(!Cnote.getText().toString().equals("")) {
-                    lessons.get(CurID).note = Cnote.getText().toString();
                     try {
                         JSONObject j=json.getJSONObject("lesson"+CurID);
                         j.put("note",Cnote.getText().toString());
-                        json.put("lesson"+CurID,j);
+                        json.replace(json.getJSONObject("lesson"+CurID).toString(),j);
+                        System.out.println("*****This is j in dialog:"+j.toString());
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    //Lessons.lessons.set(CurID,Lessons.lessons.get(CurID));
-                    //Lessons.lessons.add(Lessons.lessons.get(CurID));
-                    //Lessons.lessons.remove(Lessons.lessons.get(CurID));
+
                     editor.putString("LESSON",json.toString());
-                    editor.apply();
+                    editor.commit();
+                    Lessons.lessons.clear();
                     Toast.makeText(MainActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
                 }
             }
