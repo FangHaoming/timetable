@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("change",0);
             editor.apply();
             while (lessonCount == 0) {
+                System.out.println("wait");
             }
         }
         if (receive.getString("LESSON", "")!=null) {
@@ -156,7 +157,23 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < Lessons.lessons.size(); i++) {
                 System.out.println("sizeof"+Lessons.lessons.size());
                 for (int j = 0; j < 7; j++) {
-                    if(Lessons.lessons.get(i).time.begin[j]!=-1){
+                    if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=3&&xn==2020){
+                        addLesson(Lessons.lessons.get(i), j);
+                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
+                    }
+                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn<=2018){
+                        addLesson(Lessons.lessons.get(i), j);
+                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
+                    }
+                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=3&&xn==2019&&xq.equals("1")){
+                        addLesson(Lessons.lessons.get(i), j);
+                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
+                    }
+                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn==2019&&xq.equals("2")){
+                        addLesson(Lessons.lessons.get(i), j);
+                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
+                    }
+                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn!=2020){
                         addLesson(Lessons.lessons.get(i), j);
                         System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
                     }
@@ -407,16 +424,7 @@ public class MainActivity extends AppCompatActivity {
             params.height = 0;
             params.setMargins(1, 1, 1, 1);
             gridLayout.addView(lessonTag, params);
-            /*
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    gridLayout.addView(lessonTag, params);
-                    Log.e("t", "addview");
-                }
-            });
 
-             */
         }
         id++;
     }
@@ -602,6 +610,9 @@ public class MainActivity extends AppCompatActivity {
             xn = now.get(Calendar.YEAR) - 1;
         }
         xn=receive.getInt("xn",xn);
+        if (receive.getString("xq","").equals("1"))
+            ((RadioButton) view.findViewById(R.id.radioButton5)).setChecked(true);
+        else ((RadioButton) view.findViewById(R.id.radioButton6)).setChecked(true);
         for(int i=0;i<radioButtons.size();i+=2){
             RadioButton button1=radioButtons.get(i);
             RadioButton button2=radioButtons.get(i+1);
@@ -627,30 +638,11 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString("xq",xq);
                 editor.putInt("change",1);
                 editor.apply();
-                //gridLayout.removeAllViews();
-                /*for(int j=1;j<14;j++) {
-                    TextView textView = new TextView(MainActivity.this);
-                    //textView.setGravity(Gravity.CENTER); //居中
-                    if(j==10)
-                        textView.setText("0");
-                    else if(j==11)
-                        textView.setText("A");
-                    else if(j==12)
-                        textView.setText("B");
-                    else if(j==13)
-                        textView.setText("C");
-                    else textView.setText(String.valueOf(j));
-                    GridLayout.LayoutParams params = new GridLayout.LayoutParams(GridLayout.spec(j,1),GridLayout.spec(0) );//设置添加的课程行与列
-                    textView.setTextAppearance(R.style.grid);
-                    gridLayout.addView(textView,params);
-                }*/
                 Lessons.lessons.clear();
-                gridLayout.removeAllViews();
                 diglog.cancel();
                 Intent intent=new Intent(MainActivity.this,MainActivity.class);
                 startActivity(intent);
                 finish();
-
             }
         });
         diglog.show();
