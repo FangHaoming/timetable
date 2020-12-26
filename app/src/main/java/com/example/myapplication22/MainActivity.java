@@ -1,6 +1,5 @@
 package com.example.myapplication22;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,7 +7,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -23,16 +21,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
-
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,8 +40,6 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-
-import static com.example.myapplication22.Lessons.lessons;
 
 //
 public class MainActivity extends AppCompatActivity {
@@ -75,14 +67,7 @@ public class MainActivity extends AppCompatActivity {
         editor = receive.edit();
 
         ActionBar actionBar = getSupportActionBar();
-        /*
-        if(actionBar != null){
-            actionBar.setHomeButtonEnabled(true);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
-         */
-        //receive=this.getIntent().getExtras();
     }
 
     @Override
@@ -186,23 +171,7 @@ public class MainActivity extends AppCompatActivity {
             for (int i = 0; i < Lessons.lessons.size(); i++) {
                 System.out.println("sizeof"+Lessons.lessons.size());
                 for (int j = 0; j < 7; j++) {
-                    if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=3&&xn==2020){
-                        addLesson(Lessons.lessons.get(i), j);
-                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
-                    }
-                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn<=2018){
-                        addLesson(Lessons.lessons.get(i), j);
-                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
-                    }
-                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=3&&xn==2019&&xq.equals("1")){
-                        addLesson(Lessons.lessons.get(i), j);
-                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
-                    }
-                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn==2019&&xq.equals("2")){
-                        addLesson(Lessons.lessons.get(i), j);
-                        System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
-                    }
-                    else if(Lessons.lessons.get(i).time.begin[j]!=-1&& lessons.get(i).time.during[0]>=1&&xn!=2020){
+                    if(Lessons.lessons.get(i).time.begin[j]!=-1){
                         addLesson(Lessons.lessons.get(i), j);
                         System.out.println("*******THIS is add in add:"+Lessons.lessons.get(i).name+"i为："+i);
                     }
@@ -212,17 +181,6 @@ public class MainActivity extends AppCompatActivity {
                 if (k > 25)
                     k = k % 25;
             }
-            /*
-            for(int i=lesson1.length;i<Lessons.lessons.size();i++){
-                for (int j = 0; j < 7; j++){
-                    if(!String.valueOf(Lessons.lessons.get(i).time.begin[j]).contains("null")){
-                        addLesson(Lessons.lessons.get(i),j);
-                    }
-                }
-                k++;
-            }
-
-             */
         }
 
     }
@@ -243,25 +201,6 @@ public class MainActivity extends AppCompatActivity {
                 .add("xn", xn)
                 .add("xq", xq)
                 .build();
-        /*
-        final FormBody formBody = new FormBody.Builder()
-                .add("name","乒乓球")
-                .add("no","12221")
-                .add("teacher","熊志")
-                .add("classroom","E301")
-                .add("duringb","3")
-                .add("duringe","18")
-                .add("time1","12")
-                .add("time2","67")
-                .add("credit","2")
-                .add("note","明天就要交作业了")
-                .add("txtUserID", txtUserID)
-                .add("txtUserPwd", txtUserPwd)
-                .add("xn",xn)
-                .add("xq",xq)
-                .build();
-         */
-
 
 
         Request request = new Request.Builder()
@@ -442,8 +381,6 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                    //CurID= Lessons.lessons.indexOf(le);
-                    //CurID=lessonTag.getId();
                     showDdlDialog();
                 }
             }); //给每个课程添加点击事件，打开编辑ddl
