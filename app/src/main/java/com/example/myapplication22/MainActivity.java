@@ -110,7 +110,36 @@ public class MainActivity extends AppCompatActivity {
         xn=receive.getInt("xn",xn);
         xq=receive.getString("xq",xq);
         if (receive.getBoolean("isLoad", false) == false||receive.getInt("change",0)==1) {
-            sendByPost(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), xn+"-"+(xn+1)+"学年", xq);
+            //sendByPost(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), xn+"-"+(xn+1)+"学年", xq);
+            final int finalXn = xn;
+            final String finalXq = xq;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ArrayList<Less> lesses=http.getTimeTable(receive.getString("txtUserID", ""), receive.getString("txtUserPwd", ""), finalXn +"-"+(finalXn+1)+"学年", finalXq);
+
+                    JSONObject jsonObject=new JSONObject();
+                    jsonObject.put("length",String.valueOf(lesses.size()));
+                    for (int i=0;i<lesses.size();i++) {
+                        Less lesson=lesses.get(i);
+                        JSONObject json = new JSONObject();
+                        json.put("name", lesson.name);
+                        json.put("no", lesson.no);
+                        json.put("teacher", lesson.teacher);
+                        json.put("classroom", lesson.classroom);
+                        json.put("during", lesson.during[0] + "-" + lesson.during[1]);
+                        json.put("credit",lesson.credit);
+                        for (int j = 0; j < lesson.time.length; j++) {
+                            json.put(String.valueOf(j), lesson.time[j]);
+                        }
+                        jsonObject.put("lesson"+i, json.toString());
+                    }
+                    editor.putString("info", jsonObject.toString());
+                    editor.putBoolean("isLoad", true);
+                    editor.apply();
+                    lessonCount = 1;
+                }
+            }).start();
             editor.putInt("change",0);
             editor.apply();
             while (lessonCount == 0) {
