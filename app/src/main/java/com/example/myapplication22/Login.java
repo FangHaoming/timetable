@@ -72,7 +72,33 @@ public class Login extends AppCompatActivity {
         //send.putString("txtUserID",acc);
         //send.putString("txtUserPwd",pwd);
         if(acc.length()!=0&&pwd.length()!=0){
-            sendByPost(acc,pwd,"2022-2023学年","1");
+            //sendByPost(acc,pwd,"2022-2023学年","1");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String info=http.login(acc,pwd);
+                    if(info.equals("success")){
+                        editor.putBoolean("isLogin",true);
+                        editor.putBoolean("isLoad",false);
+                        editor.putString("info","");
+                        editor.apply();
+                        Intent intent = new Intent(Login.this,MainActivity.class);
+                        //intent.putExtras(send);
+                        startActivity(intent);
+                        finish();
+                    }
+                    else if(info.equals("error")){
+                        Looper.prepare();
+                        Toast.makeText(Login.this, "账号密码错误", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    }
+                    else if(info.equals("failed")){
+                        Looper.prepare();
+                        Toast.makeText(Login.this, "服务器连接失败", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
+                    }
+                }
+            }).start();
         }
         else if(acc.length()==0){
             Toast.makeText(this, "请输入账号", Toast.LENGTH_SHORT).show();

@@ -20,6 +20,7 @@ android {
 }
 
 dependencies {
+    //implementation 'org.jsoup:jsoup:1.13.1'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
     implementation 'com.alibaba:fastjson:1.2.21'
@@ -28,4 +29,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation files('C:\\Program Files\\Android\\Android Studio\\lib\\jsoup-1.13.1.jar')
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    //implementation group: 'org.jsoup', name: 'jsoup', version: '1.13.1'
+
+
 }
